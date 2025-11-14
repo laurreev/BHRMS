@@ -220,7 +220,7 @@ export default function LoginPage() {
           )}          {/* Info Message */}
           <div className="text-center">
             <p className="text-sm text-gray-600">
-              Don't have an account? Contact your administrator.
+              Don&apos;t have an account? Contact your administrator.
             </p>
           </div>
         </div>
