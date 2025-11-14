@@ -129,8 +129,8 @@ export default function TestFirebasePage() {
         <div className="mt-6 bg-yellow-50 border border-yellow-200 rounded-lg p-4">
           <h3 className="font-semibold text-yellow-900 mb-2">💡 Troubleshooting Steps:</h3>
           <ol className="list-decimal list-inside space-y-1 text-sm text-yellow-800">
-            <li>Click "Check Environment Variables" - ensure all are set</li>
-            <li>Click "Test Firestore Connection" - verify users exist</li>
+            <li>Click &quot;Check Environment Variables&quot; - ensure all are set</li>
+            <li>Click &quot;Test Firestore Connection&quot; - verify users exist</li>
             <li>If users are missing, run: <code className="bg-yellow-100 px-2 py-1 rounded">node scripts/addUsers.js</code></li>
             <li>Make sure your .env.local file exists in the root directory</li>
             <li>Restart dev server after changing .env.local</li>

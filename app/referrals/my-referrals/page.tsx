@@ -31,12 +31,6 @@ export default function MyReferralsPage() {
   const [loading, setLoading] = useState(true);
   const [filterStatus, setFilterStatus] = useState<'all' | 'pending' | 'accepted' | 'completed'>('all');
 
-  useEffect(() => {
-    if (user) {
-      fetchMyReferrals();
-    }
-  }, [user]);
-
   const fetchMyReferrals = async () => {
     if (!user) return;
 
@@ -63,6 +57,13 @@ export default function MyReferralsPage() {
       setLoading(false);
     }
   };
+
+  useEffect(() => {
+    if (user) {
+      fetchMyReferrals();
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [user]);
 
   const filteredReferrals = referrals.filter(r => 
     filterStatus === 'all' || r.status === filterStatus

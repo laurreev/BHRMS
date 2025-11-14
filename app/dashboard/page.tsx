@@ -33,13 +33,9 @@ export default function DashboardPage() {
   });
   const [loading, setLoading] = useState(true);
 
-  useEffect(() => {
-    if (user) {
-      fetchDashboardStats();
-    }
-  }, [user]);
-
   const fetchDashboardStats = async () => {
+    if (!user) return;
+    
     try {
       setLoading(true);
 
@@ -99,6 +95,13 @@ export default function DashboardPage() {
       setLoading(false);
     }
   };
+
+  useEffect(() => {
+    if (user) {
+      fetchDashboardStats();
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [user]);
 
   const handleLogout = async () => {
     await logout();
