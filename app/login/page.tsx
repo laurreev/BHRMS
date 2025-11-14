@@ -29,20 +29,27 @@ export default function LoginPage() {
     setIsLoading(true);
 
     try {
+      console.log('Attempting to fetch credential:', credential);
+      console.log('Firestore db:', db ? 'initialized' : 'NOT initialized');
+      
       // Fetch user from Firestore
       const userDoc = await getDoc(doc(db, 'usersBHRMS', credential));
       
+      console.log('User document exists:', userDoc.exists());
+      
       if (!userDoc.exists()) {
-        setError('Invalid credential number');
+        setError('Invalid credential number. User not found in database.');
         setIsLoading(false);
         return;
       }
 
       const userData = userDoc.data();
+      console.log('User data retrieved:', userData);
       setUserName(`${userData.firstName} ${userData.lastName}`);
       setStep('confirm');
     } catch (error: any) {
-      setError('Failed to verify credential');
+      console.error('Credential verification error:', error);
+      setError(`Failed to verify credential: ${error.message}`);
     } finally {
       setIsLoading(false);
     }

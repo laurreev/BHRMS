@@ -1,6 +1,45 @@
 # Firebase Security Setup Guide
 
-## 🔒 Essential Security Steps
+## � URGENT FIX: Permission Denied Error
+
+### Quick Fix for Login Issues
+
+**Problem:** Getting `permission-denied` error when trying to login.
+
+**Solution:** Update your Firestore Rules immediately:
+
+1. **Go to:** https://console.firebase.google.com
+2. **Select your project**
+3. **Navigate to:** Firestore Database → **Rules** tab
+4. **Replace all rules with:**
+
+```javascript
+rules_version = '2';
+
+service cloud.firestore {
+  match /databases/{database}/documents {
+    
+    // Allow public read for usersBHRMS (needed for passwordless login)
+    match /usersBHRMS/{credential} {
+      allow read: if true;   // Public read for credential verification
+      allow write: if false; // No client writes (Admin SDK only)
+    }
+    
+    // Deny everything else
+    match /{document=**} {
+      allow read, write: if false;
+    }
+  }
+}
+```
+
+5. **Click "Publish"**
+6. **Wait 30 seconds** for changes to propagate
+7. **Try login again!**
+
+---
+
+## �🔒 Essential Security Steps
 
 ### 1. Restrict API Key Usage
 Go to [Google Cloud Console](https://console.cloud.google.com/):

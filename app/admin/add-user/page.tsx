@@ -14,8 +14,14 @@ export default function AddUserPage() {
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState('');
   const [success, setSuccess] = useState('');
-  const { addUser } = useAuth();
+  const { user } = useAuth();
   const router = useRouter();
+
+  // Redirect if not admin
+  if (user && user.role !== 'admin') {
+    router.push('/dashboard');
+    return null;
+  }
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -25,12 +31,25 @@ export default function AddUserPage() {
     setIsLoading(true);
     
     try {
-      await addUser({
-        credential,
-        firstName,
-        lastName,
-        role
+      const response = await fetch('/api/admin/add-user', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          credential,
+          firstName,
+          lastName,
+          role,
+        }),
       });
+
+      const data = await response.json();
+
+      if (!response.ok) {
+        throw new Error(data.error || 'Failed to create user');
+      }
+
       setSuccess(`User account created successfully for ${firstName} ${lastName}`);
       // Clear form
       setFirstName('');
@@ -54,13 +73,20 @@ export default function AddUserPage() {
               <motion.div
                 initial={{ opacity: 0, x: -20 }}
                 animate={{ opacity: 1, x: 0 }}
-                className="flex items-center"
+                className="flex items-center gap-4"
               >
                 <button
-                  onClick={() => router.push('/dashboard')}
-                  className="text-lg font-medium text-gray-900 hover:text-gray-700 transition-colors"
+                  onClick={() => router.push('/admin/user-management')}
+                  className="px-4 py-2 text-sm font-medium text-gray-700 hover:text-gray-900 hover:bg-gray-100 rounded-lg transition-colors"
                 >
-                  ← Back to Dashboard
+                  ← Back to User Management
+                </button>
+                <div className="h-6 w-px bg-gray-300"></div>
+                <button
+                  onClick={() => router.push('/dashboard')}
+                  className="text-sm text-gray-600 hover:text-gray-900 transition-colors"
+                >
+                  Dashboard
                 </button>
               </motion.div>
             </div>
@@ -179,7 +205,6 @@ export default function AddUserPage() {
                   >
                     <option value="staff">Staff</option>
                     <option value="admin">Admin</option>
-                    <option value="health_worker">Health Worker</option>
                   </select>
                 </div>
 
