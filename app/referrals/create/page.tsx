@@ -41,16 +41,31 @@ export default function CreateReferralPage() {
 
   const fetchFacilities = async () => {
     try {
+      console.log('Fetching facilities from facilitiesBHRMS...');
       const facilitiesRef = collection(db, 'facilitiesBHRMS');
       const snapshot = await getDocs(facilitiesRef);
       
+      console.log('Facilities snapshot size:', snapshot.size);
+      
       const facilitiesList: Facility[] = [];
       snapshot.forEach((doc) => {
-        facilitiesList.push({ id: doc.id, ...doc.data() } as Facility);
+        const data = { id: doc.id, ...doc.data() } as Facility;
+        console.log('Facility found:', data);
+        facilitiesList.push(data);
       });
       
       facilitiesList.sort((a, b) => a.name.localeCompare(b.name));
       setFacilities(facilitiesList);
+      console.log('Total facilities loaded:', facilitiesList.length);
+      
+      if (facilitiesList.length === 0) {
+        toast('No facilities found. Please ask admin to add facilities first.', { 
+          icon: '⚠️',
+          duration: 4000 
+        });
+      } else {
+        toast.success(`Loaded ${facilitiesList.length} facility(ies)`);
+      }
     } catch (error) {
       console.error('Error fetching facilities:', error);
       toast.error('Failed to load facilities');
@@ -115,8 +130,18 @@ export default function CreateReferralPage() {
     }
   };
 
-  const bhsFacilities = facilities.filter(f => f.type === 'BHS');
-  const hospitalFacilities = facilities.filter(f => f.type === 'Hospital');
+  const bhsFacilities = facilities.filter(f => {
+    const type = f.type?.toString().toUpperCase();
+    return type === 'BHS';
+  });
+  
+  const hospitalFacilities = facilities.filter(f => {
+    const type = f.type?.toString().toUpperCase();
+    return type === 'HOSPITAL';
+  });
+
+  console.log('BHS Facilities:', bhsFacilities);
+  console.log('Hospital Facilities:', hospitalFacilities);
 
   return (
     <ProtectedRoute>
@@ -224,11 +249,14 @@ export default function CreateReferralPage() {
                       value={fromFacility}
                       onChange={(e) => setFromFacility(e.target.value)}
                       required
-                      className="w-full px-4 py-3 rounded-lg border border-gray-300 focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none transition-all"
+                      disabled={loading}
+                      className="w-full px-4 py-3 rounded-lg border border-gray-300 focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none transition-all disabled:bg-gray-100 disabled:cursor-not-allowed"
                     >
-                      <option value="">Select origin facility</option>
+                      <option value="">
+                        {loading ? 'Loading facilities...' : facilities.length === 0 ? 'No facilities available' : 'Select origin facility'}
+                      </option>
                       {bhsFacilities.length > 0 && (
-                        <optgroup label="Barangay Health Stations">
+                        <optgroup label={`Barangay Health Stations (${bhsFacilities.length})`}>
                           {bhsFacilities.map((facility) => (
                             <option key={facility.id} value={facility.name}>
                               {facility.name}
@@ -237,7 +265,7 @@ export default function CreateReferralPage() {
                         </optgroup>
                       )}
                       {hospitalFacilities.length > 0 && (
-                        <optgroup label="Hospitals">
+                        <optgroup label={`Hospitals (${hospitalFacilities.length})`}>
                           {hospitalFacilities.map((facility) => (
                             <option key={facility.id} value={facility.name}>
                               {facility.name}
@@ -245,7 +273,22 @@ export default function CreateReferralPage() {
                           ))}
                         </optgroup>
                       )}
+                      {/* Fallback: Show all facilities if categories are empty */}
+                      {bhsFacilities.length === 0 && hospitalFacilities.length === 0 && facilities.length > 0 && (
+                        <optgroup label={`All Facilities (${facilities.length})`}>
+                          {facilities.map((facility) => (
+                            <option key={facility.id} value={facility.name}>
+                              {facility.name} ({facility.type})
+                            </option>
+                          ))}
+                        </optgroup>
+                      )}
                     </select>
+                    {!loading && facilities.length === 0 && (
+                      <p className="mt-1 text-sm text-red-600">
+                        ⚠️ No facilities found. Please contact admin to add facilities.
+                      </p>
+                    )}
                   </div>
 
                   <div>
@@ -256,11 +299,14 @@ export default function CreateReferralPage() {
                       value={toFacility}
                       onChange={(e) => setToFacility(e.target.value)}
                       required
-                      className="w-full px-4 py-3 rounded-lg border border-gray-300 focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none transition-all"
+                      disabled={loading}
+                      className="w-full px-4 py-3 rounded-lg border border-gray-300 focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none transition-all disabled:bg-gray-100 disabled:cursor-not-allowed"
                     >
-                      <option value="">Select destination facility</option>
+                      <option value="">
+                        {loading ? 'Loading facilities...' : facilities.length === 0 ? 'No facilities available' : 'Select destination facility'}
+                      </option>
                       {bhsFacilities.length > 0 && (
-                        <optgroup label="Barangay Health Stations">
+                        <optgroup label={`Barangay Health Stations (${bhsFacilities.length})`}>
                           {bhsFacilities.map((facility) => (
                             <option key={facility.id} value={facility.name}>
                               {facility.name}
@@ -269,10 +315,20 @@ export default function CreateReferralPage() {
                         </optgroup>
                       )}
                       {hospitalFacilities.length > 0 && (
-                        <optgroup label="Hospitals">
+                        <optgroup label={`Hospitals (${hospitalFacilities.length})`}>
                           {hospitalFacilities.map((facility) => (
                             <option key={facility.id} value={facility.name}>
                               {facility.name}
+                            </option>
+                          ))}
+                        </optgroup>
+                      )}
+                      {/* Fallback: Show all facilities if categories are empty */}
+                      {bhsFacilities.length === 0 && hospitalFacilities.length === 0 && facilities.length > 0 && (
+                        <optgroup label={`All Facilities (${facilities.length})`}>
+                          {facilities.map((facility) => (
+                            <option key={facility.id} value={facility.name}>
+                              {facility.name} ({facility.type})
                             </option>
                           ))}
                         </optgroup>

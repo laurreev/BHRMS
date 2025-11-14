@@ -32,27 +32,81 @@ export default function MyReferralsPage() {
   const [filterStatus, setFilterStatus] = useState<'all' | 'pending' | 'accepted' | 'completed'>('all');
 
   const fetchMyReferrals = async () => {
-    if (!user) return;
+    if (!user) {
+      console.log('No user found, skipping fetch');
+      setLoading(false);
+      return;
+    }
 
     try {
       setLoading(true);
+      console.log('Fetching referrals for user:', user.credential);
+      
       const referralsRef = collection(db, 'referralsBHRMS');
-      const q = query(
-        referralsRef,
-        where('createdBy', '==', user.credential),
-        orderBy('createdAt', 'desc')
-      );
-      const snapshot = await getDocs(q);
       
-      const referralsList: Referral[] = [];
-      snapshot.forEach((doc) => {
-        referralsList.push({ id: doc.id, ...doc.data() } as Referral);
-      });
-      
-      setReferrals(referralsList);
+      // Try with orderBy first
+      try {
+        const q = query(
+          referralsRef,
+          where('createdBy', '==', user.credential),
+          orderBy('createdAt', 'desc')
+        );
+        const snapshot = await getDocs(q);
+        
+        console.log('Referrals found (with orderBy):', snapshot.size);
+        
+        const referralsList: Referral[] = [];
+        snapshot.forEach((doc) => {
+          const data = { id: doc.id, ...doc.data() } as Referral;
+          console.log('Referral:', data);
+          referralsList.push(data);
+        });
+        
+        setReferrals(referralsList);
+        
+        if (referralsList.length === 0) {
+          toast('No referrals found. Create your first referral!', { icon: 'ℹ️' });
+        } else {
+          toast.success(`Loaded ${referralsList.length} referral(s)`);
+        }
+      } catch (indexError: any) {
+        // If index error, fall back to query without orderBy
+        console.warn('Index error, fetching without orderBy:', indexError);
+        
+        const q = query(
+          referralsRef,
+          where('createdBy', '==', user.credential)
+        );
+        const snapshot = await getDocs(q);
+        
+        console.log('Referrals found (without orderBy):', snapshot.size);
+        
+        const referralsList: Referral[] = [];
+        snapshot.forEach((doc) => {
+          const data = { id: doc.id, ...doc.data() } as Referral;
+          referralsList.push(data);
+        });
+        
+        // Sort manually by createdAt
+        referralsList.sort((a, b) => {
+          const aDate = a.createdAt?.toDate() || new Date(0);
+          const bDate = b.createdAt?.toDate() || new Date(0);
+          return bDate.getTime() - aDate.getTime();
+        });
+        
+        setReferrals(referralsList);
+        
+        if (referralsList.length === 0) {
+          toast('No referrals found. Create your first referral!', { icon: 'ℹ️' });
+        } else {
+          toast.success(`Loaded ${referralsList.length} referral(s)`);
+        }
+      }
     } catch (error: any) {
       console.error('Error fetching referrals:', error);
-      toast.error('Failed to load referrals');
+      console.error('Error code:', error.code);
+      console.error('Error message:', error.message);
+      toast.error(`Failed to load referrals: ${error.message || 'Unknown error'}`);
     } finally {
       setLoading(false);
     }
