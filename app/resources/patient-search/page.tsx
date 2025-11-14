@@ -64,7 +64,7 @@ export default function PatientSearchPage() {
       setSearchResults(results);
       
       if (results.length === 0) {
-        toast.info('No referrals found for this patient');
+        toast('No referrals found for this patient', { icon: 'ℹ️' });
       } else {
         toast.success(`Found ${results.length} referral(s)`);
       }
