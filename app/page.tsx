@@ -1,0 +1,22 @@
+export default function Home() {
+  return (
+    <main className="flex min-h-screen flex-col items-center justify-center p-24">
+      <div className="z-10 max-w-5xl w-full items-center justify-center font-mono text-sm">
+        <h1 className="text-4xl font-bold text-center mb-8">
+          Barangay Health Referral Management System
+        </h1>
+        <p className="text-center text-lg mb-4">
+          Welcome to BHRMS - Your healthcare referral solution
+        </p>
+        <div className="flex justify-center gap-4 mt-8">
+          <button className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded">
+            Get Started
+          </button>
+          <button className="bg-gray-500 hover:bg-gray-700 text-white font-bold py-2 px-4 rounded">
+            Learn More
+          </button>
+        </div>
+      </div>
+    </main>
+  );
+}
