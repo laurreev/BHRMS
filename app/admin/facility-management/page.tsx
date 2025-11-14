@@ -39,23 +39,6 @@ export default function FacilityManagementPage() {
     capacity: '',
   });
 
-  // Redirect if not admin
-  if (user?.role !== 'admin') {
-    return (
-      <div className="min-h-screen flex items-center justify-center bg-gray-50">
-        <div className="text-center">
-          <h1 className="text-2xl font-bold text-gray-900 mb-2">Access Denied</h1>
-          <p className="text-gray-600">You must be an administrator to access this page.</p>
-          <Link href="/dashboard">
-            <button className="mt-4 px-6 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700">
-              Back to Dashboard
-            </button>
-          </Link>
-        </div>
-      </div>
-    );
-  }
-
   useEffect(() => {
     fetchFacilities();
   }, []);
@@ -138,6 +121,23 @@ export default function FacilityManagementPage() {
     bhs: facilities.filter(f => f.type === 'bhs').length,
     hospitals: facilities.filter(f => f.type === 'hospital').length,
   };
+
+  // Redirect if not admin (after hooks)
+  if (user?.role !== 'admin') {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-gray-50">
+        <div className="text-center">
+          <h1 className="text-2xl font-bold text-gray-900 mb-2">Access Denied</h1>
+          <p className="text-gray-600">You must be an administrator to access this page.</p>
+          <Link href="/dashboard">
+            <button className="mt-4 px-6 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700">
+              Back to Dashboard
+            </button>
+          </Link>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <ProtectedRoute>

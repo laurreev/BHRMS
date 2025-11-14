@@ -32,23 +32,6 @@ export default function ReferralTriageDashboardPage() {
   const [filterPriority, setFilterPriority] = useState<'all' | 'routine' | 'urgent' | 'emergency'>('all');
   const [autoRefresh, setAutoRefresh] = useState(true);
 
-  // Redirect if not admin
-  if (user?.role !== 'admin') {
-    return (
-      <div className="min-h-screen flex items-center justify-center bg-gray-50">
-        <div className="text-center">
-          <h1 className="text-2xl font-bold text-gray-900 mb-2">Access Denied</h1>
-          <p className="text-gray-600">You must be an administrator to access this page.</p>
-          <Link href="/dashboard">
-            <button className="mt-4 px-6 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700">
-              Back to Dashboard
-            </button>
-          </Link>
-        </div>
-      </div>
-    );
-  }
-
   useEffect(() => {
     fetchReferrals();
     
@@ -61,6 +44,7 @@ export default function ReferralTriageDashboardPage() {
     return () => {
       if (interval) clearInterval(interval);
     };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [autoRefresh]);
 
   const fetchReferrals = async () => {
@@ -130,6 +114,23 @@ export default function ReferralTriageDashboardPage() {
       default: return 'bg-gray-100 text-gray-800';
     }
   };
+
+  // Redirect if not admin (after hooks)
+  if (user?.role !== 'admin') {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-gray-50">
+        <div className="text-center">
+          <h1 className="text-2xl font-bold text-gray-900 mb-2">Access Denied</h1>
+          <p className="text-gray-600">You must be an administrator to access this page.</p>
+          <Link href="/dashboard">
+            <button className="mt-4 px-6 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700">
+              Back to Dashboard
+            </button>
+          </Link>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <ProtectedRoute>
